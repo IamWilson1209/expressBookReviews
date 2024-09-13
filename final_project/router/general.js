@@ -113,7 +113,7 @@ public_users.get('/titleasync/:title', async function (req, res) {
     try {
         const getBookswithtitle = async () => {
             const title = req.params.title;
-            let validBook = Object.values(books).filter((book)=>book.title === title);
+            let validBook = Object.values(books).filter((book)=> book.title === title);
             return validBook;
         };
         const book = await getBookswithtitle();  
