@@ -24,21 +24,21 @@ public_users.post("/register", (req,res) => {
 
 // Task 1: Get the book list available in the shop
 public_users.get('/',function (req, res) {
-    res.send(JSON.stringify(friends,null,4));
+    res.send(JSON.stringify(books,null,4));
 });
 
 // Task 10: Async Get the book list available in the shop
-// public_users.get('/', async function (req, res) {
-//     try {
-//         const getBooks = async () => {
-//             return books;  
-//         };
-//         const bookList = await getBooks();  
-//         return res.status(200).send(JSON.stringify(bookList, null, 4));
-//     } catch (error) {
-//         return res.status(500).send("Error fetching books");
-//     }
-// });
+public_users.get('/async', async function (req, res) {
+    try {
+        const getBooks = async () => {
+            return books;  
+        };
+        const bookList = await getBooks();  
+        return res.status(200).send(JSON.stringify(bookList, null, 4));
+    } catch (error) {
+        return res.status(500).send("Error fetching books");
+    }
+});
 
 // Task 2: Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
@@ -47,7 +47,7 @@ public_users.get('/isbn/:isbn',function (req, res) {
  });
 
 // Task 11: Async Get book details based on ISBN
-public_users.get('/isbn/:isbn', async function (req, res) {
+public_users.get('/isbnasync/:isbn', async function (req, res) {
     try {
         const getBookswithisbn = async () => {
             const isbn = req.params.isbn;
@@ -64,27 +64,29 @@ public_users.get('/isbn/:isbn', async function (req, res) {
 // Task 3: Get book details based on author
 public_users.get('/author/:author',function (req, res) {
     const author = req.params.author;
-    let validBook = books.filter((book)=>{book.author === author})
+    let validBook = Object.values(books).filter((book)=>book.author === author);
     if (validBook.length > 0) {
         res.send(validBook);
     } else {
-        res.send(`No book find by author ${author}`)
+        res.send(`No book find by author ${author}`);
     }
 });
 
 // Task 12: Async Get book details based on author
-public_users.get('/author/:author', async function (req, res) {
+public_users.get('/authorasync/:author', async function (req, res) {
     try {
         const getBookswithauthor = async () => {
             const author = req.params.author;
-            let validBook = books.filter((book)=>{book.author === author})
+            let validBook = Object.values(books).filter((book) => {
+                return book.author === author;
+            });
             return validBook;
         };
         const book = await getBookswithauthor();  
         if (book.length > 0) {
             res.send(book);
         } else {
-            res.send(`No book find by author ${author}`)
+            res.send(`No book find by author ${author}`);
         }
     } catch (error) {
         return res.status(500).send("Error fetching books");
@@ -94,8 +96,11 @@ public_users.get('/author/:author', async function (req, res) {
 // Task 4: Get all books based on title
 public_users.get('/title/:title',function (req, res) {
     const title = req.params.title;
-    let validBook = books.filter((book)=>{book.title === title})
+    console.log("Searching for title:", title);
+    console.log("Books data:", books);
+    let validBook = Object.values(books).filter((book)=>book.title === title);
     if (validBook.length > 0) {
+        console.log(validBook);
         res.send(validBook);
     } else {
         res.send(`No book find by title ${title}`)
@@ -104,18 +109,18 @@ public_users.get('/title/:title',function (req, res) {
 
 
 // Task 13: Async Get book details based on title
-public_users.get('/title/:title', async function (req, res) {
+public_users.get('/titleasync/:title', async function (req, res) {
     try {
         const getBookswithtitle = async () => {
             const title = req.params.title;
-            let validBook = books.filter((book)=>{book.title === title})
+            let validBook = Object.values(books).filter((book)=>book.title === title);
             return validBook;
         };
         const book = await getBookswithtitle();  
-        if (book.length > 0) {
+        if (book) {
             res.send(book);
         } else {
-            res.send(`No book find by title ${title}`)
+            res.send(`No book find by title ${title}`);
         }
     } catch (error) {
         return res.status(500).send("Error fetching books");
@@ -126,10 +131,10 @@ public_users.get('/title/:title', async function (req, res) {
 public_users.get('/review/:isbn',function (req, res) {
     const isbn = req.params.isbn;
     let validBook = books[isbn];
-    if (validBook.length > 0) {
-        res.send(validBook.review);
+    if (validBook) {
+        res.send(validBook.reviews);
     } else {
-        res.send(`No book find by isbn ${isbn}`)
+        res.send(`No book find by isbn ${isbn}`);
     }
 });
 

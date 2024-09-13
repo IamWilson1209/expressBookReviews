@@ -54,18 +54,24 @@ regd_users.post("/login", (req,res) => {
 // Task 8: Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
     const isbn = req.params.isbn;
-    let book = books[isbn];  
-    if (book) {  // Check if book exists
-        let review = req.body.review;
+    const reviewText = req.query.reviews;
+    const username = req.session.authorization.username; // 從 session 中獲取用戶名
+    let book = books[isbn]; 
 
-        if (review) {
-            book["review"] = review;
+    if (book) {  
+        if (!book.reviews) {
+            book.reviews = {};  
         }
-
-        books[isbn] = book;  // Update book details in 'books' object
-        res.send(`Book with the isbn ${isbn} updated.`);
+        if (book.reviews[username]) {
+            book.reviews[username] = reviewText;
+            res.send(`Review by user ${username} for book with ISBN ${isbn} has been updated.`);
+        } else {
+            book.reviews[username] = reviewText;
+            res.send(`Review by user ${username} for book with ISBN ${isbn} has been added.`);
+        }
+        books[isbn] = book;  
     } else {
-        res.send("Unable to find book!");
+        res.status(404).send("Unable to find book with the provided ISBN.");
     }
 });
 
@@ -73,8 +79,13 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
 // Task 9: Complete the code for deleting a book review
 regd_users.delete("/auth/review/:isbn", (req, res) => {
     const isbn = req.params.isbn;
-    if (isbn) {
-        delete books[isbn];
+    const username = req.session.authorization.username;
+    let book = books[isbn];
+
+    if (book && book.reviews) {
+        delete book.reviews[username];
+        books[isbn] = book;
+        res.send(`Review for book with ISBN ${isbn} deleted.`);
     }
     res.send(`Book with the isbn ${isbn} deleted.`);
 });
